@@ -1,4 +1,5 @@
 from flask import Flask, request, make_response, send_file, safe_join
+from werkzeug.exceptions import NotFound
 import sys, os, cgi, urllib, posixpath
 from StringIO import StringIO
 
