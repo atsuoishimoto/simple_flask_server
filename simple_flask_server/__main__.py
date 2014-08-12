@@ -1,5 +1,6 @@
-from flask import Flask, request, make_response, send_file, safe_join
-import sys, os, cgi, urllib, posixpath
+from werkzeug.exceptions import NotFound
+from flask import Flask, request, make_response, send_file, safe_join, redirect
+import sys, os, cgi, urllib, posixpath, argparse
 from StringIO import StringIO
 
 
@@ -47,24 +48,6 @@ def show_directory(path):
     resp = make_response(f.read())
     return resp
 
-# stolen from flask
-_os_alt_seps = list(sep for sep in [os.path.sep, os.path.altsep]
-                    if sep not in (None, '/'))
-def join_path(dir, path):
-    import pdb
-    pdb.set_trace()
-    filename = posixpath.normpath(path)
-    for sep in _os_alt_seps:
-        if sep in filename:
-            raise NotFound()
-    if os.path.isabs(filename) or \
-       filename == '..' or \
-       filename.startswith('../'):
-        raise NotFound()
-    return os.path.join(directory, filename)
-
-
-
 @app.route('/<path:filename>')
 @app.route('/')
 def show_file(filename=''):
@@ -74,14 +57,14 @@ def show_file(filename=''):
 
     if not os.path.isfile(filename):
         raise NotFound()
-    options = {'conditional': True}
-    return send_file(filename, **options)
+    return send_file(filename)
+
+parser = argparse.ArgumentParser(description='Simple HTTP server in Flask.')
+parser.add_argument('--path')
 
 def main():
-    global app
     global ROOT_DIR
-    print app.url_map
-    ROOT_DIR = os.getcwd()
+    ROOT_DIR = os.path.abspath(parser.parse_args().path or os.getcwd())
     app.run(debug=True)
 
 if __name__ == '__main__':
