@@ -1,7 +1,10 @@
 from werkzeug.exceptions import NotFound
 from flask import Flask, request, make_response, send_file, safe_join, redirect
-import sys, os, cgi, urllib, posixpath, argparse
-from StringIO import StringIO
+import sys, os, cgi, urllib.request, urllib.parse, urllib.error, posixpath, argparse
+try:
+    from StringIO import StringIO
+except ImportError:
+    from io import StringIO
 
 
 app = Flask(__name__, static_folder=None)
@@ -40,7 +43,7 @@ def show_directory(path):
             displayname = name + "@"
             # Note: a link to a directory displays with @ and links with /
         f.write('<li><a href="%s">%s</a>\n'
-                % (urllib.quote(linkname), cgi.escape(displayname)))
+                % (urllib.parse.quote(linkname), cgi.escape(displayname)))
     f.write("</ul>\n<hr>\n</body>\n</html>\n")
     length = f.tell()
     f.seek(0)
