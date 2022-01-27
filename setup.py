@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name = "simple_flask_server",
-    version = "0.0.2",
+    version = "0.0.3",
     author = "Atsuo Ishimoto",
     author_email = "xatsuoi@gmail.com",
     description = "Flask equivalent of python -m SimpleHTTPServer.",

@@ -1,6 +1,6 @@
 from werkzeug.exceptions import NotFound
 from flask import Flask, request, make_response, send_file, safe_join, redirect
-import sys, os, cgi, urllib.request, urllib.parse, urllib.error, posixpath, argparse
+import sys, os, html, urllib.request, urllib.parse, urllib.error, posixpath, argparse
 try:
     from StringIO import StringIO
 except ImportError:
@@ -25,7 +25,7 @@ def show_directory(path):
         return None
     list.sort(key=lambda a: a.lower())
     f = StringIO()
-    displaypath = cgi.escape(path)
+    displaypath = html.escape(path)
     f.write('<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 3.2 Final//EN">')
     f.write("<html>\n<title>Directory listing for %s</title>\n" % displaypath)
     encoding = sys.getfilesystemencoding()
@@ -43,7 +43,7 @@ def show_directory(path):
             displayname = name + "@"
             # Note: a link to a directory displays with @ and links with /
         f.write('<li><a href="%s">%s</a>\n'
-                % (urllib.parse.quote(linkname), cgi.escape(displayname)))
+                % (urllib.parse.quote(linkname), html.escape(displayname)))
     f.write("</ul>\n<hr>\n</body>\n</html>\n")
     length = f.tell()
     f.seek(0)
