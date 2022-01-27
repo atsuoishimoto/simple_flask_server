@@ -21,8 +21,8 @@ def show_directory(path):
     try:
         list = os.listdir(path)
     except os.error:
-        self.send_error(404, "No permission to list directory")
-        return None
+        raise NotFound()
+
     list.sort(key=lambda a: a.lower())
     f = StringIO()
     displaypath = html.escape(path)
@@ -46,9 +46,11 @@ def show_directory(path):
                 % (urllib.parse.quote(linkname), html.escape(displayname)))
     f.write("</ul>\n<hr>\n</body>\n</html>\n")
     length = f.tell()
-    f.seek(0)
 
-    resp = make_response(f.read())
+    encoded = f.getvalue().encode(encoding, 'surrogateescape')
+    resp = make_response(encoded)
+    resp.headers["Content-type"] = "text/html; charset=%s" % encoding
+    resp.headers["Content-Length"] = len(encoded)
     return resp
 
 @app.route('/<path:filename>')
