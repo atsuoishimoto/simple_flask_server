@@ -71,12 +71,14 @@ def show_file(filename=""):
         raise NotFound()
     return send_file(filepath)
 
+
 DEFAULT_ADDR = "127.0.0.1"
 DEFAULT_PORT = "8001"
 
 parser = argparse.ArgumentParser(description='Simple HTTP server in Flask.')
 parser.add_argument('path', default="", nargs="?")
 parser.add_argument('--bind', '-b', help="bind address and port", default=f"{DEFAULT_ADDR}:{DEFAULT_PORT}")
+parser.add_argument('--ext', '-e', help="execute python file", action="append")
 
 
 def main():
@@ -85,6 +87,11 @@ def main():
     ROOT_DIR = os.path.abspath(args.path or os.getcwd())
 
     addr, port = re.match(r"([^:]*):?(.*)", args.bind).groups()
+
+    for e in args.ext:
+        with open(e) as f:
+            code = compile(f.read(), e, 'exec')
+            exec(code, globals())
     app.run(debug=True, host=addr or DEFAULT_ADDR, port=port or DEFAULT_PORT)
 
 if __name__ == '__main__':
