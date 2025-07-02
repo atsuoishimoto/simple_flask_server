@@ -3,7 +3,7 @@ from werkzeug.utils import safe_join
 from flask import Flask, request, make_response, send_file, redirect
 import sys, os, html, urllib.request, urllib.parse, urllib.error, posixpath, argparse
 from io import StringIO
-
+import re
 
 app = Flask(__name__, static_folder=None)
 
@@ -71,13 +71,21 @@ def show_file(filename=""):
         raise NotFound()
     return send_file(filepath)
 
+DEFAULT_ADDR = "127.0.0.1"
+DEFAULT_PORT = "8001"
+
 parser = argparse.ArgumentParser(description='Simple HTTP server in Flask.')
-parser.add_argument('--path')
+parser.add_argument('path', default="", nargs="?")
+parser.add_argument('--bind', '-b', help="bind address and port", default=f"{DEFAULT_ADDR}:{DEFAULT_PORT}")
+
 
 def main():
     global ROOT_DIR
-    ROOT_DIR = os.path.abspath(parser.parse_args().path or os.getcwd())
-    app.run(debug=True)
+    args = parser.parse_args()
+    ROOT_DIR = os.path.abspath(args.path or os.getcwd())
+
+    addr, port = re.match(r"([^:]*):?(.*)", args.bind).groups()
+    app.run(debug=True, host=addr or DEFAULT_ADDR, port=port or DEFAULT_PORT)
 
 if __name__ == '__main__':
     main()

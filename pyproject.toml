@@ -1,0 +1,33 @@
+[project]
+name = "simple-flask-server"
+dynamic = ["version"]
+
+description = "Using Flask as a lightweight HTTP server in place of Python's built-in http.server"
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Environment :: Console",
+    "Environment :: Web Environment"
+]
+
+dependencies = [
+    "flask>=3.1.1",
+]
+
+[project.urls]
+Homepage = "https://github.com/atsuoishimoto/simple_flask_server"
+
+[project.scripts]
+simple-flask-server = "simple_flask_server.__main__:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.version]
+path = "simple_flask_server/__init__.py"
+
