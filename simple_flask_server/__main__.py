@@ -1,10 +1,8 @@
 from werkzeug.exceptions import NotFound
-from flask import Flask, request, make_response, send_file, safe_join, redirect
+from werkzeug.utils import safe_join
+from flask import Flask, request, make_response, send_file, redirect
 import sys, os, html, urllib.request, urllib.parse, urllib.error, posixpath, argparse
-try:
-    from StringIO import StringIO
-except ImportError:
-    from io import StringIO
+from io import StringIO
 
 
 app = Flask(__name__, static_folder=None)
@@ -17,6 +15,7 @@ def show_directory(path):
     error).  In either case, the headers are sent, making the
     interface the same as for send_head().
 
+    https://stackoverflow.com/questions/46951468/make-python-simplehttpserver-list-subdirectories-on-top
     """
     try:
         list = os.listdir(path)
@@ -55,14 +54,22 @@ def show_directory(path):
 
 @app.route('/<path:filename>')
 @app.route('/')
-def show_file(filename=''):
-    filename = safe_join(ROOT_DIR, filename)
-    if os.path.isdir(filename):
-        return show_directory(filename)
+def show_file(filename=""):
+    filepath = safe_join(ROOT_DIR, filename)
+    if os.path.isdir(filepath):
+        if filename and not filename.endswith("/"):
+            return redirect(f"/{filename}/", 301)
 
-    if not os.path.isfile(filename):
+        for index in ("index.html", "index.htm"):
+            index = safe_join(filepath, index)
+            if os.path.isfile(index):
+                return send_file(index)
+
+        return show_directory(filepath)
+
+    if not os.path.isfile(filepath):
         raise NotFound()
-    return send_file(filename)
+    return send_file(filepath)
 
 parser = argparse.ArgumentParser(description='Simple HTTP server in Flask.')
 parser.add_argument('--path')
