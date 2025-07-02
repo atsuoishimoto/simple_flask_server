@@ -37,12 +37,6 @@ Run the server from the command line:
 simple-flask-server [path] [options]
 ```
 
-You can also run it as a Python module:
-
-```bash
-python -m simple_flask_server [path] [options]
-```
-
 ### Arguments
 
 -   `path` (optional): The directory to serve files from. If not specified, it defaults to the current working directory.
@@ -66,7 +60,7 @@ simple-flask-server
 To serve files from a specific directory (e.g., `/var/www`):
 
 ```bash
-simple-flask-server /var/w
+simple-flask-server /var/www
 ```
 
 To run the server on a different address and port (e.g., all interfaces on port 8080):
@@ -136,7 +130,7 @@ def api():
 
 More concisely:
 
-```
+```bash
 simple-flask-server -c "app.route('/api', methods=['POST'])(lambda : {'hello':'world'})"
 ```
 
