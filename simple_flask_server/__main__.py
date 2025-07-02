@@ -1,3 +1,4 @@
+import flask
 from werkzeug.exceptions import NotFound
 from werkzeug.utils import safe_join
 from flask import Flask, request, make_response, send_file, redirect

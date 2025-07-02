@@ -12,6 +12,8 @@ This package provides a simple HTTP server that serves files from the current di
 -   Serves files from a specified directory.
 -   Lists directory contents if `index.html` or `index.htm` is not found.
 -   Redirects to add a trailing slash for directories.
+-   Extends server functionality by loading external Python files.
+-   Dynamically adds routes from a command-line string.
 
 ## Installation
 
@@ -47,9 +49,11 @@ python -m simple_flask_server [path] [options]
 
 ### Options
 
--   `--bind` / `-b`: Specify the address and port to bind to.
-    -   Format: `[address][:port]`
-    -   Default: `127.0.0.1:8001`
+-   `-h, --help`: Show this help message and exit.
+-   `--bind BIND`, `-b BIND`: Specify the address and port to bind to (e.g., `0.0.0.0:8080`).
+-   `--ext EXT`, `-e EXT`: Execute a Python file in the context of the Flask app. This allows for adding custom routes. Can be specified multiple times.
+-   `--cmd CMD [CMD ...]`, `-c CMD [CMD ...]`: Execute a program passed in as a string.
+-   `--open`, `-o`: Open the default web browser to the server's address.
 
 ### Examples
 
@@ -62,7 +66,7 @@ simple-flask-server
 To serve files from a specific directory (e.g., `/var/www`):
 
 ```bash
-simple-flask-server /var/www
+simple-flask-server /var/w
 ```
 
 To run the server on a different address and port (e.g., all interfaces on port 8080):
@@ -71,13 +75,20 @@ To run the server on a different address and port (e.g., all interfaces on port 
 simple-flask-server -b 0.0.0.0:8080
 ```
 
+To open the browser automatically:
+```bash
+simple-flask-server -o
+```
+
 ### Extending the Server
 
-You can extend the server with custom Python code to handle specific URL routes. This is useful for creating simple API endpoints or custom pages.
+You can extend the server with custom Python code or external commands.
 
--   `--ext` / `-e`: Specify a Python file to execute. The file is executed in the context of the Flask application, allowing you to define new routes. This option can be used multiple times to load multiple files.
+#### Using `--ext`
 
-#### Example: Adding a JSON API Endpoint
+Specify a Python file to execute. The file is executed in the context of the Flask application, allowing you to define new routes. This option can be used multiple times.
+
+**Example:**
 
 The `samples/json-entry.py` file provides a simple example of a custom endpoint:
 
@@ -88,7 +99,7 @@ def post1():
     return {"hello":"world"}
 ```
 
-To run the server and load this extension, use the following command:
+To run the server and load this extension:
 
 ```bash
 simple-flask-server -e samples/json-entry.py
@@ -108,7 +119,44 @@ The server will respond with:
 }
 ```
 
+#### Using `--cmd`
+
+Execute a Python script string. This is useful for defining simple, dynamic routes on the fly.
+
+**Example:**
+
+```bash
+simple-flask-server \
+-c "@app.route('/api', methods=['POST'])
+def api():
+  print(dict(request.json))
+  return {'hello':'world'}
+"
+```
+
+More concisely:
+
+```
+simple-flask-server -c "app.route('/api', methods=['POST'])(lambda : {'hello':'world'})"
+```
+
+You can then call this new endpoint:
+
+```bash
+curl -X POST -H "Content-Type: application/json" \
+-d '{"key":"value"}' http://127.0.0.1:8001/api
+```
+
+The server will respond with:
+
+```json
+{
+  "hello": "world"
+}
+```
+
 ## License
+
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
 
