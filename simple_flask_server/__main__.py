@@ -4,6 +4,8 @@ from flask import Flask, request, make_response, send_file, redirect
 import sys, os, html, urllib.request, urllib.parse, urllib.error, posixpath, argparse
 from io import StringIO
 import re
+import webbrowser
+import threading
 
 app = Flask(__name__, static_folder=None)
 
@@ -79,7 +81,12 @@ parser = argparse.ArgumentParser(description='Simple HTTP server in Flask.')
 parser.add_argument('path', default="", nargs="?")
 parser.add_argument('--bind', '-b', help="bind address and port", default=f"{DEFAULT_ADDR}:{DEFAULT_PORT}")
 parser.add_argument('--ext', '-e', help="execute python file", action="append")
+parser.add_argument('--cmd', '-c', nargs="+", help="execute program passed in as string")
+parser.add_argument('--open', '-o', action="store_true", help="open browser")
 
+def open_browser(url):
+    threading.Thread(target=webbrowser.open, args=(url,)).start()
+    
 
 def main():
     global ROOT_DIR
@@ -88,10 +95,20 @@ def main():
 
     addr, port = re.match(r"([^:]*):?(.*)", args.bind).groups()
 
-    for e in args.ext:
-        with open(e) as f:
-            code = compile(f.read(), e, 'exec')
-            exec(code, globals())
+    if args.ext:
+        for e in args.ext:
+            with open(e) as f:
+                code = compile(f.read(), e, 'exec')
+                exec(code, globals())
+
+    if args.cmd:
+        cmd = "\n".join(args.cmd)
+        code = compile(cmd, '<args>', 'exec')
+        exec(code, globals())
+
+    if args.open:
+        open_browser(f"http://localhost:{port}")
+
     app.run(debug=True, host=addr or DEFAULT_ADDR, port=port or DEFAULT_PORT)
 
 if __name__ == '__main__':
