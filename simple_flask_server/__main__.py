@@ -7,7 +7,7 @@ from io import StringIO
 import re
 import webbrowser
 import threading
-
+import simple_flask_server
 app = Flask(__name__, static_folder=None)
 
 
@@ -75,15 +75,16 @@ def show_file(filename=""):
     return send_file(filepath)
 
 
-DEFAULT_ADDR = "0.0.0.1"
+DEFAULT_ADDR = "0.0.0.0"
 DEFAULT_PORT = "8001"
 
 parser = argparse.ArgumentParser(description='Simple HTTP server in Flask.')
 parser.add_argument('path', default="", nargs="?")
-parser.add_argument('--bind', '-b', help="bind address and port", default=f"{DEFAULT_ADDR}:{DEFAULT_PORT}")
+parser.add_argument('--bind', '-b', help=f"bind address and port (default: {DEFAULT_ADDR}:{DEFAULT_PORT})", default=f"{DEFAULT_ADDR}:{DEFAULT_PORT}")
 parser.add_argument('--ext', '-e', help="execute python file", action="append")
 parser.add_argument('--cmd', '-c', nargs="+", help="execute program passed in as string")
 parser.add_argument('--open', '-o', action="store_true", help="open browser")
+parser.add_argument('-v', dest="version", action="store_true", help="show version")
 
 def open_browser(url):
     threading.Thread(target=webbrowser.open, args=(url,)).start()
@@ -92,6 +93,10 @@ def open_browser(url):
 def main():
     global ROOT_DIR
     args = parser.parse_args()
+    if args.version:
+        print(f"simple-flask-server {simple_flask_server.__version__}")
+        sys.exit()
+
     ROOT_DIR = os.path.abspath(args.path or os.getcwd())
 
     addr, port = re.match(r"([^:]*):?(.*)", args.bind).groups()
