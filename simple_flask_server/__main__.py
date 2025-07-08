@@ -75,7 +75,7 @@ def show_file(filename=""):
     return send_file(filepath)
 
 
-DEFAULT_ADDR = "127.0.0.1"
+DEFAULT_ADDR = "0.0.0.1"
 DEFAULT_PORT = "8001"
 
 parser = argparse.ArgumentParser(description='Simple HTTP server in Flask.')
